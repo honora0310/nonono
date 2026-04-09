@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>華語八千詞學習卡</title>
+    <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --primary: #2980b9;
+            --secondary: #7f8c8d;
+        }
+        body {
+            font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h2 {
+            background-color: var(--primary);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin-top: 40px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.2s;
+        }
+        .card:hover { transform: translateY(-3px); }
+        .image-box {
+            width: 80px; height: 80px;
+            background-color: #eee;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
+        }
+        .image-box img { width: 100%; height: 100%; object-fit: cover; }
+        .hanzi { font-size: 20px; font-weight: bold; color: #333; margin: 5px 0; }
+        .pinyin { font-size: 14px; color: var(--primary); margin-bottom: 5px; }
+        .english { font-size: 13px; color: var(--secondary); font-style: italic; }
+        .level {
+            font-size: 10px; color: #fff; background: #95a5a6;
+            padding: 2px 5px; border-radius: 3px; margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="main-content"></div>
+
+<script>
+    // 1. 所有資料統一管理，已加上 images/ 資料夾路徑
+    const allData = [
+        {
+            title: "🍎 水果 (Fruits)",
+            list: [
+                ['水果', 'shuǐguǒ', 'fruit', 'images/fruit.jpg', 'L1'],
+                ['蘋果', 'píngguǒ', 'apple', 'images/apple.jpg', 'L2'],
+                ['香蕉', 'xiāngjiāo', 'banana', 'images/banana.jpg', 'L2'],
+                ['西瓜', 'xīguā', 'watermelon', 'images/watermelon.jpg', 'L2'],
+                ['芒果', 'mángguǒ', 'mango', 'images/mango.jpg', 'L3'],
+                ['鳳梨', 'fènglí', 'pineapple', 'images/pineapple.jpg', 'L3'],
+                ['葡萄', 'pútáo', 'grape', 'images/grape.jpg', 'L3'],
+                ['橘子', 'júzi', 'orange', 'images/orange.jpg', 'L3'],
+                ['梨子', 'lízi', 'pear', 'images/pear.jpg', 'L3'],
+                ['桃子', 'táozi', 'peach', 'images/peach.jpg', 'L3'],
+                ['草莓', 'cǎoméi', 'strawberry', 'images/strawberry.jpg', 'L3'],
+                ['檸檬', 'níngméng', 'lemon', 'images/lemon.jpg', 'L3']
+            ]
+        },
+        {
+            title: "🐶 動物 (Animals)",
+            list: [
+                ['狗', 'gǒu', 'dog', 'images/dog.jpg', 'Novice 2'],
+                ['貓', 'māo', 'cat', 'images/cat.jpg', 'Novice 2'],
+                ['鳥', 'niǎo', 'bird', 'images/bird.jpg', 'L2'],
+                ['馬', 'mǎ', 'horse', 'images/horse.jpg', 'L2'],
+                ['魚', 'yú', 'fish', 'images/fish.jpg', 'L2'],
+                ['牛', 'niú', 'cow/ox', 'images/cow.jpg', 'L2'],
+                ['羊', 'yáng', 'sheep/goat', 'images/sheep.jpg', 'L2'],
+                ['雞', 'jī', 'chicken', 'images/chicken.jpg', 'L2'],
+                ['豬', 'zhū', 'pig', 'images/pig.jpg', 'L2'],
+                ['老鼠', 'lǎoshǔ', 'mouse/rat', 'images/mouse.jpg', 'L2'],
+                ['象', 'xiàng', 'elephant', 'images/elephant.jpg', 'L3'],
+                ['獅子', 'shīzi', 'lion', 'images/lion.jpg', 'L3'],
+                ['老虎', 'lǎohǔ', 'tiger', 'images/tiger.jpg', 'L3'],
+                ['猴子', 'hóuzi', 'monkey', 'images/monkey.jpg', 'L3'],
+                ['兔子', 'tùzi', 'rabbit', 'images/rabbit.jpg', 'L3'],
+                ['蛇', 'shé', 'snake', 'images/snake.jpg', 'L3'],
+                ['蚊子', 'wénzi', 'mosquito', 'images/mosquito.jpg', 'L3'],
+                ['蒼蠅', 'cāngyíng', 'fly', 'images/fly.jpg', 'L3'],
+                ['螞蟻', 'mǎyǐ', 'ant', 'images/ant.jpg', 'L3'],
+                ['蝴蝶', 'húdié', 'butterfly', 'images/butterfly.jpg', 'L3']
+            ]
+        },
+        {
+            title: "👕 衣服與配件 (Clothes)",
+            list: [
+                ['衣服', 'yīfú', 'clothes', 'images/clothes.jpg', 'Novice 2'],
+                ['褲子', 'kùzi', 'pants', 'images/pants.jpg', 'L1'],
+                ['裙子', 'qúnzi', 'skirt', 'images/skirt.jpg', 'L1'],
+                ['鞋子', 'xiézi', 'shoes', 'images/shoes.jpg', 'L1'],
+                ['襯衫', 'chènshān', 'shirt', 'images/shirt.jpg', 'L2'],
+                ['毛衣', 'máoyī', 'sweater', 'images/sweater.jpg', 'L2'],
+                ['外套', 'wàitào', 'coat', 'images/coat.jpg', 'L2'],
+                ['襪子', 'wàzi', 'socks', 'images/socks.jpg', 'L2'],
+                ['帽子', 'màozi', 'cap', 'images/cap.jpg', 'L2'],
+                ['內衣', 'nèiyī', 'underwear', 'images/underwear.jpg', 'L3'],
+                ['西裝', 'xīzhuāng', 'suit', 'images/suit.jpg', 'L3'],
+                ['牛仔褲', 'niúzǎikù', 'jeans', 'images/jeans.jpg', 'L3'],
+                ['圍巾', 'wéijīn', 'scarf', 'images/scarf.jpg', 'L3'],
+                ['手套', 'shǒutào', 'gloves', 'images/gloves.jpg', 'L3'],
+                ['皮帶', 'pídài', 'belt', 'images/belt.jpg', 'L3']
+            ]
+        },
+        {
+            title: "🧭 方位詞與空間 (Position)",
+            list: [
+                ['上面', 'shàngmiàn', 'above', 'images/up.jpg', 'Novice 2'],
+                ['下面', 'xiàmiàn', 'below', 'images/down.jpg', 'Novice 2'],
+                ['前面', 'qiánmiàn', 'front', 'images/front.jpg', 'Novice 2'],
+                ['後面', 'hòumiàn', 'back', 'images/back.jpg', 'Novice 2'],
+                ['左邊', 'zuǒbiān', 'left', 'images/left.jpg', 'L1'],
+                ['右邊', 'yòubiān', 'right', 'images/right.jpg', 'L1'],
+                ['裡面', 'lǐmiàn', 'inside', 'images/inside.jpg', 'L1'],
+                ['外面', 'wàimiàn', 'outside', 'images/outside.jpg', 'L1'],
+                ['中間', 'zhōngjiān', 'middle', 'images/middle.jpg', 'L1'],
+                ['旁邊', 'pángbiān', 'beside', 'images/beside.jpg', 'L1'],
+                ['對面', 'duìmiàn', 'opposite', 'images/opposite.jpg', 'L2'],
+                ['東邊', 'dōngbiān', 'east', 'images/east.jpg', 'L2'],
+                ['西邊', 'xībiān', 'west', 'images/west.jpg', 'L2'],
+                ['南邊', 'nánbiān', 'south', 'images/south.jpg', 'L2'],
+                ['北邊', 'běibiān', 'north', 'images/north.jpg', 'L2'],
+                ['周圍', 'zhōuwéi', 'around', 'images/around.jpg', 'L3'],
+                ['角落', 'jiǎoluò', 'corner', 'images/corner.jpg', 'L3']
+            ]
+        },
+        {
+            title: "☀️ 天氣與自然 (Weather)",
+            list: [
+                ['天氣', 'tiānqì', 'weather', 'images/weather.jpg', 'Novice 2'],
+                ['晴天', 'qíngtiān', 'sunny', 'images/sunny.jpg', 'L1'],
+                ['下雨', 'xiàyǔ', 'rain', 'images/rain.jpg', 'L1'],
+                ['下雪', 'xiàxuě', 'snow', 'images/snow.jpg', 'L2'],
+                ['颳風', 'guāfēng', 'windy', 'images/windy.jpg', 'L2'],
+                ['陰天', 'yīntiān', 'cloudy', 'images/cloudy.jpg', 'L2'],
+                ['氣溫', 'qìwēn', 'temp', 'images/temp.jpg', 'L3'],
+                ['雲', 'yún', 'cloud', 'images/cloud.jpg', 'L3'],
+                ['霧', 'wù', 'fog', 'images/fog.jpg', 'L3'],
+                ['雷', 'léi', 'thunder', 'images/thunder.jpg', 'L3'],
+                ['閃電', 'shǎndiàn', 'lightning', 'images/lightning.jpg', 'L3'],
+                ['潮濕', 'cháoshī', 'humid', 'images/humid.jpg', 'L3'],
+                ['乾燥', 'gānzào', 'dry', 'images/dry.jpg', 'L3']
+            ]
+        },
+        {
+            title: "✏️ 文具與辦公 (Stationery)",
+            list: [
+                ['筆', 'bǐ', 'pen', 'images/pen.jpg', 'Novice 2'],
+                ['筆記本', 'běnzi', 'notebook', 'images/notebook.jpg', 'Novice 2'],
+                ['書', 'shū', 'book', 'images/book.jpg', 'Novice 2'],
+                ['紙', 'zhǐ', 'paper', 'images/paper.jpg', 'L2'],
+                ['鉛筆', 'qiānbǐ', 'pencil', 'images/pencil.jpg', 'L2'],
+                ['字典', 'zìdiǎn', 'dictionary', 'images/dictionary.jpg', 'L2'],
+                ['地圖', 'dìtú', 'map', 'images/map.jpg', 'L2'],
+                ['毛筆', 'máobǐ', 'brush', 'images/brush.jpg', 'L3'],
+                ['橡皮擦', 'xiàngpí', 'eraser', 'images/eraser.jpg', 'L3'],
+                ['尺', 'chǐ', 'ruler', 'images/ruler.jpg', 'L3'],
+                ['剪刀', 'jiǎndāo', 'scissors', 'images/scissors.jpg', 'L3'],
+                ['膠水', 'jiāoshuǐ', 'glue', 'images/glue.jpg', 'L3'],
+                ['信封', 'xìnfēng', 'envelope', 'images/envelope.jpg', 'L3']
+            ]
+        },
+        {
+            title: "🏠 家、家具與設施 (Home)",
+            list: [
+                ['家', 'jiā', 'home', 'images/home.jpg', 'Novice 1'],
+                ['房子', 'fángzi', 'house', 'images/house.jpg', 'Novice 2'],
+                ['房間', 'fángjiān', 'room', 'images/room.jpg', 'Novice 2'],
+                ['桌子', 'zhuōzi', 'table', 'images/table.jpg', 'Novice 2'],
+                ['椅子', 'yǐzi', 'chair', 'images/chair.jpg', 'Novice 2'],
+                ['床', 'chuáng', 'bed', 'images/bed.jpg', 'Novice 2'],
+                ['廚房', 'chúfáng', 'kitchen', 'images/kitchen.jpg', 'L2'],
+                ['客廳', 'kètīng', 'living room', 'images/living.jpg', 'L2'],
+                ['浴室', 'yùshì', 'bathroom', 'images/bathroom.jpg', 'L2'],
+                ['廁所', 'cèsuǒ', 'toilet', 'images/toilet.jpg', 'L2'],
+                ['窗戶', 'chuānghù', 'window', 'images/window.jpg', 'L2'],
+                ['門', 'mén', 'door', 'images/door.jpg', 'L2'],
+                ['燈', 'dēng', 'lamp', 'images/lamp.jpg', 'L2'],
+                ['樓梯', 'lóutī', 'stairs', 'images/stairs.jpg', 'L3'],
+                ['陽台', 'yángtái', 'balcony', 'images/balcony.jpg', 'L3'],
+                ['家具', 'jiājù', 'furniture', 'images/furniture.jpg', 'L3'],
+                ['牆壁', 'qiángbì', 'wall', 'images/wall.jpg', 'L3'],
+                ['地毯', 'dìtǎn', 'carpet', 'images/carpet.jpg', 'L3'],
+                ['鏡子', 'jìngzi', 'mirror', 'images/mirror.jpg', 'L3']
+            ]
+        }
+    ];
+
+    function init() {
+        const container = document.getElementById('main-content');
+        let finalHtml = '';
+
+        allData.forEach(category => {
+            finalHtml += `<h2>${category.title}</h2>`;
+            finalHtml += `<div class="grid">`;
+            
+            category.list.forEach(item => {
+                finalHtml += `
+                    <div class="card">
+                        <div class="image-box">
+                            <img src="${item[3]}" alt="${item[0]}" onerror="this.onerror=null; this.src='https://via.placeholder.com/80?text=%3F'">
+                        </div>
+                        <span class="hanzi">${item[0]}</span>
+                        <span class="pinyin">${item[1]}</span>
+                        <span class="english">${item[2]}</span>
+                        <span class="level">${item[4]}</span>
+                    </div>
+                `;
+            });
+            
+            finalHtml += `</div>`;
+        });
+
+        container.innerHTML = finalHtml;
+    }
+
+    window.onload = init;
+</script>
+
+</body>
+</html>
